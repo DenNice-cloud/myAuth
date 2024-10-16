@@ -1,0 +1,8 @@
+export const STATUSE_CODE = {
+  OK: {CODE: 200, MSG: 'SUCCESS'},
+  CREATED: {CODE: 201, MSG: 'CREATED'},
+  NO_CONTENT: {CODE: 204 , MSG: 'No ContenT'},
+  BAD_REQUEST: {CODE: 400 , MSG: 'BAD REQUEST'},
+  UNAUTHORIZED: {CODE: 401 , MSG: 'Unauthorized'},
+  NOT_FOUND: {CODE: 404 , MSG: 'NOT FOUND'},
+}
