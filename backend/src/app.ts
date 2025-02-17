@@ -9,9 +9,9 @@ const app: Express = express();
 app.use(cors());
 app.use(express.json());
 
-// app.get("/", (req: Request, res: Response) => {
-//   res.send("Hello Node!");
-// });
+app.get("/", (req: Request, res: Response) => {
+  res.send("Hello Node!");
+});
 
 app.use("/", userRouter);
 

@@ -10,17 +10,21 @@ const MainRouter: React.FC = () => {
       render: () => <MainPage />,
     },
   ];
-  
+
   return (
     <BrowserRouter>
       <Routes>
-        {Rout.map((route, index) => (
+        {/* {Rout.map((route, index) => (
           <Route
             key={index}
             path={route.path}
-            element={route.render()}
+            element={<MainPage />}
           />
-        ))}
+        ))} */}
+        <Route
+          path="/"
+          element={<MainPage />}
+        />
       </Routes>
     </BrowserRouter>
   );
