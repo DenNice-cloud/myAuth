@@ -26,10 +26,6 @@ const MainRouter: React.FC = () => {
             element={route.render()}
           />
         ))}
-        {/* <Route
-          path="/"
-          element={<MainPage />}
-        /> */}
       </Routes>
     </BrowserRouter>
   );
