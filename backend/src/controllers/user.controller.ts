@@ -128,7 +128,7 @@ const loginUser = async (
 
     res
       .status(STATUSE_CODE.OK.CODE)
-      .json({ message: "Password and Email is OK, welcome!" });
+      .json({ message: "Password and Email is OK, welcome!", data: userExist });
   } catch (err) {
     next(err);
   }
