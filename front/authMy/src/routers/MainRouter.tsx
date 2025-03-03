@@ -5,6 +5,9 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import LoginPage from "../pages/Login.page";
 import RegisterPage from "../pages/Register.page";
 import ProfilePage from "../pages/Profile.page";
+import TestPage from "../pages/TestPage.page";
+// import { ToastContainer } from "react-toastify";
+// import "react-toastify/dist/ReactToastify.css";
 
 const MainRouter: React.FC = () => {
   const Rout = [
@@ -23,6 +26,10 @@ const MainRouter: React.FC = () => {
     {
       path: ROUTER_KEYS.PROFILE,
       render: () => <ProfilePage />,
+    },
+    {
+      path: ROUTER_KEYS.TEST,
+      render: () => <TestPage />,
     },
   ];
 

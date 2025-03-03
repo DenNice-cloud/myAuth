@@ -5,11 +5,36 @@ import { validationResult } from "express-validator";
 import { STATUSE_CODE } from "../constants/statusCodes";
 import bcrypt from "bcrypt";
 import { createToken } from "../middlewares/middlewares";
+import jwt from "jsonwebtoken";
 
 const getAllUsers = async (req: Request, res: Response): Promise<void> => {
   const showAllUsers = await prisma.user.findMany();
 
   res.status(STATUSE_CODE.OK.CODE).send(showAllUsers);
+};
+
+const getUser = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      throw new Error("Unauthorized");
+    }
+
+    const decode = jwt.verify(token, process.env.SECRET_KEY!) as { id: number };
+    const currentUser = await prisma.user.findUnique({
+      where: { id: decode.id },
+    });
+
+    if (!currentUser) {
+      throw new Error("User not found");
+    }
+
+  res.status(STATUSE_CODE.OK.CODE).json({ message: currentUser });
+  } catch (error) {
+    res.status(STATUSE_CODE.BAD_REQUEST.CODE).json({
+      message: (error as Error).message || "Error to authorize",
+    });
+  }
 };
 
 const removeUser = async (req: Request, res: Response): Promise<void> => {
@@ -31,18 +56,13 @@ const removeUser = async (req: Request, res: Response): Promise<void> => {
   res.status(STATUSE_CODE.OK.CODE).send({ message: "User was deleted" });
 };
 
-const registerUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+const registerUser = async (req: Request, res: Response): Promise<void> => {
   const error = validationResult(req);
 
   if (!error.isEmpty()) {
     res
       .status(STATUSE_CODE.BAD_REQUEST.CODE)
-      .json({ errors: error.array().map((errMsg) => errMsg.msg) })
-      .send({ message: `${STATUSE_CODE.BAD_REQUEST.MSG}` });
+      .json({ errors: error.array().map((errMsg) => errMsg.msg) });
     return;
   }
 
@@ -79,22 +99,19 @@ const registerUser = async (
     // const response = await axios.post('/register', userData);
     // localStorage.setItem('token', response.data.token);
   } catch (err) {
-    next(err);
+    res.status(STATUSE_CODE.BAD_REQUEST.CODE).json({
+      message: (err as Error).message || "Error to login",
+    });
   }
 };
 
-const loginUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+const loginUser = async (req: Request, res: Response): Promise<void> => {
   const error = validationResult(req);
 
   if (!error.isEmpty()) {
     res
       .status(STATUSE_CODE.BAD_REQUEST.CODE)
-      .json({ errors: error.array().map((errMsg) => errMsg.msg) })
-      .send({ message: `${STATUSE_CODE.BAD_REQUEST.MSG}` });
+      .json({ errors: error.array().map((errMsg) => errMsg.msg) });
     return;
   }
 
@@ -106,10 +123,7 @@ const loginUser = async (
     }); //findByEmail
 
     if (!userExist) {
-      res
-        .status(STATUSE_CODE.BAD_REQUEST.CODE)
-        .json({ message: "Email ain't registered yet" });
-      return;
+      throw new Error("Email ain't registered yet");
     }
 
     const comparePassword = await bcrypt.compare(password, userExist.password);
@@ -126,11 +140,16 @@ const loginUser = async (
 
     //при логине на фронте я записіваю токен пользователяс бази данних в локальное хранилище?
 
+    const addToken = await createToken(userExist.id);
+    userExist.JWT_access = addToken;
+
     res
       .status(STATUSE_CODE.OK.CODE)
       .json({ message: "Password and Email is OK, welcome!", data: userExist });
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    res.status(STATUSE_CODE.BAD_REQUEST.CODE).json({
+      message: (error as Error).message || "Error to login",
+    });
   }
 };
 
@@ -139,4 +158,5 @@ export const userControllers = {
   registerUser,
   removeUser,
   loginUser,
+  getUser,
 };

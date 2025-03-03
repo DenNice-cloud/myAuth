@@ -1,7 +1,18 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const ProfileContent = () => {
+  const [currentUser, setCurrentUser] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchProfile = () => {
+      // const token: string = localStorage.getItem("token");
+      // setCurrentUser(token);
+    };
+
+    fetchProfile();
+  });
 
   const handleClickBack = () => {
     navigate("/");
@@ -20,6 +31,7 @@ const ProfileContent = () => {
           Back
         </button>
         Empty Page
+        <div>Name: Email: Password: Id:</div>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import { registerUserValidator, loginUserValidator } from "../../middlewares/val
 const userRouter = express.Router();
 
 userRouter.get("/users",  userControllers.getAllUsers);
+userRouter.get("/profile",  userControllers.getUser);
 userRouter.delete("/:id", userControllers.removeUser);
 
 userRouter.post("/register", registerUserValidator, userControllers.registerUser);

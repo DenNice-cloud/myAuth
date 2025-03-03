@@ -1,9 +1,5 @@
 import jwt, { VerifyErrors } from "jsonwebtoken";
 
-// import { NextFunction, Request, Response } from "express";
-// import { STATUSE_CODE } from "../constants/statusCodes";
-// import { userType } from "../types/user.type";
-
 const secretKey = process.env.SECRET_KEY || "default_secret";
 const expiresIn = "1h";
 
