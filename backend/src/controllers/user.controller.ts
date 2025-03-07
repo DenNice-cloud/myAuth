@@ -6,6 +6,7 @@ import { STATUSE_CODE } from "../constants/statusCodes";
 import bcrypt from "bcrypt";
 import { createToken } from "../middlewares/middlewares";
 import jwt from "jsonwebtoken";
+import { resetPassType } from "../types/resetPass.type";
 
 const getAllUsers = async (req: Request, res: Response): Promise<void> => {
   const showAllUsers = await prisma.user.findMany();
@@ -29,13 +30,39 @@ const getUser = async (req: Request, res: Response): Promise<void> => {
       throw new Error("User not found");
     }
 
-  res.status(STATUSE_CODE.OK.CODE).json({ message: currentUser });
+    res.status(STATUSE_CODE.OK.CODE).json({ user: currentUser });
   } catch (error) {
     res.status(STATUSE_CODE.BAD_REQUEST.CODE).json({
-      message: (error as Error).message || "Error to authorize",
+      message: (error as Error).message || "Error to get user",
     });
   }
 };
+
+// const getUserById = async (req: Request, res: Response): Promise<void> => {
+//   const { id } = req.body;
+
+//   try {
+//     const token = req.headers.authorization?.split(" ")[1];
+//     if (!token) {
+//       throw new Error("Unauthorized");
+//     }
+
+//     const decode = jwt.verify(token, process.env.SECRET_KEY!) as { id: number };
+//     const currentUser = await prisma.user.findUnique({
+//       where: { id: decode.id },
+//     });
+
+//     if (!currentUser) {
+//       throw new Error("User not found");
+//     }
+
+//     res.status(STATUSE_CODE.OK.CODE).json({ user: currentUser });
+//   } catch (error) {
+//     res.status(STATUSE_CODE.BAD_REQUEST.CODE).json({
+//       message: (error as Error).message || "Error to get user by id",
+//     });
+//   }
+// };
 
 const removeUser = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
@@ -153,10 +180,62 @@ const loginUser = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+const newPassUser = async (req: Request, res: Response): Promise<void> => {
+  const error = validationResult(req);
+
+  if (!error.isEmpty()) {
+    res
+      .status(STATUSE_CODE.BAD_REQUEST.CODE)
+      .json({ errors: error.array().map((errMsg) => errMsg.msg) });
+    return;
+  }
+
+  const { oldPassword, newPassword, id }: resetPassType = req.body;
+
+  try {
+    const userExist = await prisma.user.findUnique({
+      where: { id },
+    }); //findById
+
+    if (!userExist) {
+      throw new Error("User ain't registered yet");
+    }
+
+    const compareOldPassword = await bcrypt.compare(
+      oldPassword,
+      userExist.password
+    );
+
+    if (!compareOldPassword) {
+      throw new Error("Old password is incorrect");
+    }
+
+    if (oldPassword === newPassword) {
+      throw new Error("New password must be different from the old password");
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await prisma.user.update({
+      where: { id },
+      data: {
+        password: hashedPassword,
+      },
+    });
+
+    res.status(STATUSE_CODE.OK.CODE).json({ message: "Password was changed" });
+  } catch (error) {
+    res.status(STATUSE_CODE.BAD_REQUEST.CODE).json({
+      message: (error as Error).message || "Error to change Password",
+    });
+  }
+};
+
 export const userControllers = {
   getAllUsers,
   registerUser,
   removeUser,
   loginUser,
   getUser,
+  newPassUser,
 };

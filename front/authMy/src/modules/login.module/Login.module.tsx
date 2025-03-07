@@ -34,7 +34,7 @@ const LoginContent = () => {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    console.log("Proccesing");
+    console.log("Proccesing"); //Proccesing
 
     try {
       const response = await fetch(import.meta.env.VITE_API_LOGIN, {

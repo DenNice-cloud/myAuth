@@ -41,3 +41,24 @@ export const loginUserValidator = [
       "Password must include an uppercase / lowercase letter and a number, example: Example1"
     ),
 ];
+
+export const newPasswordUserValidator = [
+  body("oldPassword")
+    .notEmpty()
+    .withMessage("Old password is required, example: Example1")
+    .isLength({ min: 8 })
+    .withMessage("Old password must be at least 8 characters long")
+    .matches(Password)
+    .withMessage(
+      "Old password must include an uppercase / lowercase letter and a number, example: Example1"
+    ),
+  body("newPassword")
+    .notEmpty()
+    .withMessage("New password is required, example: Example1")
+    .isLength({ min: 8 })
+    .withMessage("New password must be at least 8 characters long")
+    .matches(Password)
+    .withMessage(
+      "New password must include an uppercase / lowercase letter and a number, example: Example1"
+    ),
+];
